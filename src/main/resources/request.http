@@ -1,0 +1,25 @@
+GET localhost:8080/student/1
+
+###
+GET localhost:8080/students
+
+###
+POST localhost:8080/student
+Content-Type: application/json
+
+{
+  "firstName": "newFirstName",
+  "lastName": "newLastName",
+  "email": "newEmail@email.com"
+}
+
+###
+PUT localhost:8080/student/4
+Content-Type: application/json
+
+{
+  "firstName": "updatedFirstName",
+  "lastName": "updatedLastName",
+  "email": "updatedEmail@email.com"
+}
+
