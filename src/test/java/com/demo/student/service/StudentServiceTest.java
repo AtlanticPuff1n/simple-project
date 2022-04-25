@@ -13,9 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -35,129 +35,76 @@ class StudentServiceTest {
 
     @Test
     void testGetStudent() {
-        Student student = Student.builder()
-                .id(1L)
-                .firstName("firstName")
-                .lastName("lastName")
-                .email("email@email.com")
-                .createdDate(LocalDate.parse("2022-12-31"))
-                .build();
-
-        Optional<Student> ofResult = Optional.of(student);
-        when(this.studentRepository.findById((Long) any())).thenReturn(ofResult);
+        Optional<Student> ofResult = Optional.of(new Student());
+        when(this.studentRepository.findById(any())).thenReturn(ofResult);
         ResponseEntity<Student> actualStudent = this.studentService.getStudent(1L);
 
         assertTrue(actualStudent.hasBody());
         assertEquals(HttpStatus.OK, actualStudent.getStatusCode());
-        verify(this.studentRepository).findById((Long) any());
+        verify(this.studentRepository).findById(any());
     }
 
     @Test
     void testGetStudents() {
-        Student student = Student.builder()
-                .id(1L)
-                .firstName("firstName")
-                .lastName("lastName")
-                .email("email@email.com")
-                .createdDate(LocalDate.parse("2022-12-31"))
-                .build();
-
         List<Student> students = new ArrayList<>();
-        students.add(student);
-        students.add(student);
+        students.add(new Student());
+        students.add(new Student());
 
         when(this.studentRepository.findAll()).thenReturn(students);
         ResponseEntity<List<Student>> actualStudents = this.studentService.getStudents();
 
         assertTrue(actualStudents.hasBody());
-        assertEquals(2, actualStudents.getBody().size());
+        assertEquals(2, Objects.requireNonNull(actualStudents.getBody()).size());
         assertEquals(HttpStatus.OK, actualStudents.getStatusCode());
         verify(this.studentRepository).findAll();
     }
 
     @Test
     void testDeleteStudent() {
-        doNothing().when(this.studentRepository).deleteById((Long) any());
+        doNothing().when(this.studentRepository).deleteById(any());
         ResponseEntity<Long> actualDeleteStudentResult = this.studentService.deleteStudentById(1L);
 
-        assertEquals(1L, actualDeleteStudentResult.getBody().longValue());
+        assertEquals(1L, Objects.requireNonNull(actualDeleteStudentResult.getBody()).longValue());
         assertEquals(HttpStatus.OK, actualDeleteStudentResult.getStatusCode());
-        verify(this.studentRepository).deleteById((Long) any());
+        verify(this.studentRepository).deleteById(any());
     }
 
     @Test
     void testCreateStudent() {
-        Student student = Student.builder()
-                .id(1L)
-                .firstName("firstName")
-                .lastName("lastName")
-                .email("email@email.com")
-                .createdDate(LocalDate.parse("2022-12-31"))
-                .build();
-        when(this.studentRepository.save((Student) any())).thenReturn(student);
-
-        Student student2 = Student.builder()
-                .id(1L)
-                .firstName("firstName")
-                .lastName("lastName")
-                .email("email@email.com")
-                .createdDate(LocalDate.parse("2022-12-31"))
-                .build();
-        when(this.studentMapper.toStudent((StudentDTO) any())).thenReturn(student2);
+        when(this.studentRepository.save(any())).thenReturn(new Student());
+        when(this.studentMapper.toStudent(any())).thenReturn(new Student());
         ResponseEntity<Student> actualCreateStudentResult = this.studentService.createStudent(new StudentDTO());
 
         assertTrue(actualCreateStudentResult.hasBody());
         assertEquals(HttpStatus.CREATED, actualCreateStudentResult.getStatusCode());
-        verify(this.studentRepository).save((Student) any());
-        verify(this.studentMapper).toStudent((StudentDTO) any());
+        verify(this.studentRepository).save(any());
+        verify(this.studentMapper).toStudent(any());
     }
 
     @Test
     void testUpdateStudent_Updated() {
-        Student student = Student.builder()
-                .id(1L)
-                .firstName("firstName")
-                .lastName("lastName")
-                .email("email@email.com")
-                .createdDate(LocalDate.parse("2022-12-31"))
-                .build();
-        Optional<Student> ofResult = Optional.of(student);
-
-        Student updatedStudent = Student.builder()
-                .id(2L)
-                .firstName("updatedFirstName")
-                .lastName("updatedLastName")
-                .email("updatedEmail@email.com")
-                .createdDate(LocalDate.parse("2022-12-31"))
-                .build();
-        when(this.studentRepository.save((Student) any())).thenReturn(updatedStudent);
-        when(this.studentRepository.findById((Long) any())).thenReturn(ofResult);
+        Optional<Student> ofResult = Optional.of(new Student());
+        when(this.studentRepository.save(any())).thenReturn(new Student());
+        when(this.studentRepository.findById(any())).thenReturn(ofResult);
 
         ResponseEntity<Student> actualUpdateStudentResult = this.studentService.updateStudent(1L, new StudentDTO());
 
         assertTrue(actualUpdateStudentResult.hasBody());
         assertEquals(HttpStatus.CREATED, actualUpdateStudentResult.getStatusCode());
-        verify(this.studentRepository).save((Student) any());
-        verify(this.studentRepository).findById((Long) any());
+        verify(this.studentRepository).save(any());
+        verify(this.studentRepository).findById(any());
     }
 
     @Test
     void testUpdateStudent_NotFound() {
-        Student student = Student.builder()
-                .id(1L)
-                .firstName("firstName")
-                .lastName("lastName")
-                .email("email@email.com")
-                .createdDate(LocalDate.parse("2022-12-31"))
-                .build();
-        when(this.studentRepository.save((Student) any())).thenReturn(student);
-        when(this.studentRepository.findById((Long) any())).thenReturn(Optional.empty());
+        when(this.studentRepository.save(any())).thenReturn(new Student());
+        when(this.studentRepository.findById(any())).thenReturn(Optional.empty());
 
-        ResponseEntity<Student> actualUpdateStudentResult = this.studentService.updateStudent(2L, new StudentDTO());
+        ResponseEntity<Student> actualUpdateStudentResult = this.studentService.updateStudent(1L, new StudentDTO());
 
         assertNull(actualUpdateStudentResult.getBody());
         assertEquals(HttpStatus.NOT_FOUND, actualUpdateStudentResult.getStatusCode());
-        verify(this.studentRepository).findById((Long) any());
+        verify(this.studentRepository).findById(any());
     }
 
 }
