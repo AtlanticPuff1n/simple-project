@@ -1,5 +1,6 @@
 package com.demo.student.service;
 
+import com.demo.student.exception.ErrorResponse;
 import com.demo.student.mapper.StudentMapper;
 import com.demo.student.model.Student;
 import com.demo.student.model.StudentDTO;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -19,10 +21,17 @@ public class StudentService {
     private final StudentRepository studentRepository;
     private final StudentMapper studentMapper;
 
-    public ResponseEntity<Student> getStudent(Long id) {
+    public ResponseEntity<Object> getStudent(Long id) {
         return studentRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+                .<ResponseEntity<Object>>map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(
+                                ErrorResponse.builder()
+                                        .errorCode("STUDENT_NOT_FOUND")
+                                        .errorMessage("Student does not exist with id:" + id)
+                                        .referenceId(UUID.randomUUID().toString())
+                                        .build()
+                        ));
     }
 
     public ResponseEntity<List<Student>> getStudents() {
@@ -43,9 +52,9 @@ public class StudentService {
                 .body(studentRepository.save(student));
     }
 
-    public ResponseEntity<Student> updateStudent(Long id, StudentDTO studentDTO) {
+    public ResponseEntity<Object> updateStudent(Long id, StudentDTO studentDTO) {
         return studentRepository.findById(id)
-                .map(student -> {
+                .<ResponseEntity<Object>>map(student -> {
                     student.setFirstName(studentDTO.getFirstName());
                     student.setLastName(studentDTO.getLastName());
                     student.setEmail(studentDTO.getEmail());
@@ -54,6 +63,14 @@ public class StudentService {
                             .status(HttpStatus.CREATED)
                             .body(studentRepository.save(student));
                 })
-                .orElse(ResponseEntity.notFound().build());
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(
+                                ErrorResponse.builder()
+                                        .errorCode("STUDENT_NOT_FOUND")
+                                        .errorMessage("Student does not exist with id:" + id)
+                                        .referenceId(UUID.randomUUID().toString())
+                                        .build()
+                        ));
     }
+
 }

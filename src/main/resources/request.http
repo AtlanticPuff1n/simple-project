@@ -1,9 +1,10 @@
+### Get a student by id
 GET localhost:8080/student/1
 
-###
+### Get list of students
 GET localhost:8080/students
 
-###
+### Add a student
 POST localhost:8080/student
 Content-Type: application/json
 
@@ -13,7 +14,7 @@ Content-Type: application/json
   "email": "newEmail@email.com"
 }
 
-###
+### Update a student's information
 PUT localhost:8080/student/4
 Content-Type: application/json
 
