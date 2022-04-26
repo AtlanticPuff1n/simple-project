@@ -1,5 +1,5 @@
 ### Get a student by id
-GET localhost:8080/student/1
+GET localhost:8080/student/5
 
 ### Get list of students
 GET localhost:8080/students
@@ -15,7 +15,7 @@ Content-Type: application/json
 }
 
 ### Update a student's information
-PUT localhost:8080/student/4
+PUT localhost:8080/student/5
 Content-Type: application/json
 
 {

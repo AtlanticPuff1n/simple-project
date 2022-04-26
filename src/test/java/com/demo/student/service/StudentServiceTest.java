@@ -1,5 +1,6 @@
 package com.demo.student.service;
 
+import com.demo.student.exception.ErrorResponse;
 import com.demo.student.mapper.StudentMapper;
 import com.demo.student.model.Student;
 import com.demo.student.model.StudentDTO;
@@ -37,10 +38,21 @@ class StudentServiceTest {
     void testGetStudent() {
         Optional<Student> ofResult = Optional.of(new Student());
         when(this.studentRepository.findById(any())).thenReturn(ofResult);
-        ResponseEntity<Student> actualStudent = this.studentService.getStudent(1L);
-
+        ResponseEntity<Object> actualStudent = this.studentService.getStudent(1L);
         assertTrue(actualStudent.hasBody());
         assertEquals(HttpStatus.OK, actualStudent.getStatusCode());
+        verify(this.studentRepository).findById(any());
+    }
+
+    @Test
+    void testGetStudent_NotFound() {
+        when(this.studentRepository.findById(any())).thenReturn(Optional.empty());
+        ResponseEntity<Object> actualStudent = this.studentService.getStudent(1L);
+        assertTrue(actualStudent.hasBody());
+        assertEquals(HttpStatus.NOT_FOUND, actualStudent.getStatusCode());
+        assertEquals("STUDENT_NOT_FOUND", ((ErrorResponse) Objects.requireNonNull(actualStudent.getBody())).getErrorCode());
+        assertEquals("Student does not exist with id:1", ((ErrorResponse) actualStudent.getBody()).getErrorMessage());
+        assertNotNull(((ErrorResponse) actualStudent.getBody()).getReferenceId());
         verify(this.studentRepository).findById(any());
     }
 
@@ -49,10 +61,8 @@ class StudentServiceTest {
         List<Student> students = new ArrayList<>();
         students.add(new Student());
         students.add(new Student());
-
         when(this.studentRepository.findAll()).thenReturn(students);
         ResponseEntity<List<Student>> actualStudents = this.studentService.getStudents();
-
         assertTrue(actualStudents.hasBody());
         assertEquals(2, Objects.requireNonNull(actualStudents.getBody()).size());
         assertEquals(HttpStatus.OK, actualStudents.getStatusCode());
@@ -63,7 +73,6 @@ class StudentServiceTest {
     void testDeleteStudent() {
         doNothing().when(this.studentRepository).deleteById(any());
         ResponseEntity<Long> actualDeleteStudentResult = this.studentService.deleteStudentById(1L);
-
         assertEquals(1L, Objects.requireNonNull(actualDeleteStudentResult.getBody()).longValue());
         assertEquals(HttpStatus.OK, actualDeleteStudentResult.getStatusCode());
         verify(this.studentRepository).deleteById(any());
@@ -74,7 +83,6 @@ class StudentServiceTest {
         when(this.studentRepository.save(any())).thenReturn(new Student());
         when(this.studentMapper.toStudent(any())).thenReturn(new Student());
         ResponseEntity<Student> actualCreateStudentResult = this.studentService.createStudent(new StudentDTO());
-
         assertTrue(actualCreateStudentResult.hasBody());
         assertEquals(HttpStatus.CREATED, actualCreateStudentResult.getStatusCode());
         verify(this.studentRepository).save(any());
@@ -86,9 +94,7 @@ class StudentServiceTest {
         Optional<Student> ofResult = Optional.of(new Student());
         when(this.studentRepository.save(any())).thenReturn(new Student());
         when(this.studentRepository.findById(any())).thenReturn(ofResult);
-
-        ResponseEntity<Student> actualUpdateStudentResult = this.studentService.updateStudent(1L, new StudentDTO());
-
+        ResponseEntity<Object> actualUpdateStudentResult = this.studentService.updateStudent(1L, new StudentDTO());
         assertTrue(actualUpdateStudentResult.hasBody());
         assertEquals(HttpStatus.CREATED, actualUpdateStudentResult.getStatusCode());
         verify(this.studentRepository).save(any());
@@ -99,10 +105,8 @@ class StudentServiceTest {
     void testUpdateStudent_NotFound() {
         when(this.studentRepository.save(any())).thenReturn(new Student());
         when(this.studentRepository.findById(any())).thenReturn(Optional.empty());
-
-        ResponseEntity<Student> actualUpdateStudentResult = this.studentService.updateStudent(1L, new StudentDTO());
-
-        assertNull(actualUpdateStudentResult.getBody());
+        ResponseEntity<Object> actualUpdateStudentResult = this.studentService.updateStudent(1L, new StudentDTO());
+        assertNotNull(actualUpdateStudentResult.getBody());
         assertEquals(HttpStatus.NOT_FOUND, actualUpdateStudentResult.getStatusCode());
         verify(this.studentRepository).findById(any());
     }

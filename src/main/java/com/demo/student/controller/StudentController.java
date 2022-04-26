@@ -16,7 +16,7 @@ public class StudentController {
     private final StudentService studentService;
 
     @GetMapping("/student/{id}")
-    public ResponseEntity<Student> getStudent(@PathVariable Long id) {
+    public ResponseEntity<Object> getStudent(@PathVariable Long id) {
         return studentService.getStudent(id);
     }
 
@@ -36,7 +36,8 @@ public class StudentController {
     }
 
     @PutMapping("/student/{id}")
-    public ResponseEntity<Student> updateStudent(@PathVariable Long id, @RequestBody StudentDTO studentDTO) {
+    public ResponseEntity<Object> updateStudent(@PathVariable Long id, @RequestBody StudentDTO studentDTO) {
         return studentService.updateStudent(id, studentDTO);
     }
+
 }
