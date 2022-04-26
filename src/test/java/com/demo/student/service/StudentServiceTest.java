@@ -51,7 +51,7 @@ class StudentServiceTest {
         assertTrue(actualStudent.hasBody());
         assertEquals(HttpStatus.NOT_FOUND, actualStudent.getStatusCode());
         assertEquals("STUDENT_NOT_FOUND", ((ErrorResponse) Objects.requireNonNull(actualStudent.getBody())).getErrorCode());
-        assertEquals("Student does not exist with id:1", ((ErrorResponse) actualStudent.getBody()).getErrorMessage());
+        assertEquals("Student does not exist with id: 1", ((ErrorResponse) actualStudent.getBody()).getErrorMessage());
         assertNotNull(((ErrorResponse) actualStudent.getBody()).getReferenceId());
         verify(this.studentRepository).findById(any());
     }
@@ -70,12 +70,28 @@ class StudentServiceTest {
     }
 
     @Test
-    void testDeleteStudent() {
-        doNothing().when(this.studentRepository).deleteById(any());
-        ResponseEntity<Long> actualDeleteStudentResult = this.studentService.deleteStudentById(1L);
-        assertEquals(1L, Objects.requireNonNull(actualDeleteStudentResult.getBody()).longValue());
-        assertEquals(HttpStatus.OK, actualDeleteStudentResult.getStatusCode());
-        verify(this.studentRepository).deleteById(any());
+    void testDeleteStudentById_Found() {
+        Optional<Student> ofResult = Optional.of(new Student());
+        doNothing().when(this.studentRepository).delete(any());
+        when(this.studentRepository.findById(any())).thenReturn(ofResult);
+        ResponseEntity<Object> actualDeleteStudentByIdResult = this.studentService.deleteStudentById(1L);
+        assertTrue(actualDeleteStudentByIdResult.hasBody());
+        assertEquals(HttpStatus.OK, actualDeleteStudentByIdResult.getStatusCode());
+        verify(this.studentRepository).findById(any());
+        verify(this.studentRepository).delete(any());
+    }
+
+    @Test
+    void testDeleteStudentById_NotFound() {
+        doNothing().when(this.studentRepository).delete(any());
+        when(this.studentRepository.findById(any())).thenReturn(Optional.empty());
+        ResponseEntity<Object> actualDeleteStudentByIdResult = this.studentService.deleteStudentById(1L);
+        assertTrue(actualDeleteStudentByIdResult.hasBody());
+        assertEquals(HttpStatus.NOT_FOUND, actualDeleteStudentByIdResult.getStatusCode());
+        assertEquals("STUDENT_NOT_FOUND", ((ErrorResponse) Objects.requireNonNull(actualDeleteStudentByIdResult.getBody())).getErrorCode());
+        assertEquals("Student does not exist with id: 1",
+                ((ErrorResponse) actualDeleteStudentByIdResult.getBody()).getErrorMessage());
+        verify(this.studentRepository).findById(any());
     }
 
     @Test
@@ -96,7 +112,7 @@ class StudentServiceTest {
         when(this.studentRepository.findById(any())).thenReturn(ofResult);
         ResponseEntity<Object> actualUpdateStudentResult = this.studentService.updateStudent(1L, new StudentDTO());
         assertTrue(actualUpdateStudentResult.hasBody());
-        assertEquals(HttpStatus.CREATED, actualUpdateStudentResult.getStatusCode());
+        assertEquals(HttpStatus.OK, actualUpdateStudentResult.getStatusCode());
         verify(this.studentRepository).save(any());
         verify(this.studentRepository).findById(any());
     }

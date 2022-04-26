@@ -24,3 +24,7 @@ Content-Type: application/json
   "email": "updatedEmail@email.com"
 }
 
+### Delete a student by id
+DELETE localhost:8080/student/1
+
+

@@ -1,0 +1,3 @@
+INSERT INTO student (ID, first_name, last_name, email, created_date) VALUES(1, 'firstName1', 'lastName1', 'email1@email.com', '2022-12-31');
+INSERT INTO student (ID, first_name, last_name, email, created_date) VALUES(2, 'firstName2', 'lastName2', 'email2@email.com', '2022-12-31');
+INSERT INTO student (ID, first_name, last_name, email, created_date) VALUES(3, 'firstName3', 'lastName3', 'email3@email.com', '2022-12-31');
