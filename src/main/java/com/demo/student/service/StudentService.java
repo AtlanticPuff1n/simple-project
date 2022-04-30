@@ -79,8 +79,8 @@ public class StudentService {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(
                                 ErrorResponse.builder()
-                                        .errorCode("STUDENT_NOT_FOUND")
-                                        .errorMessage("Student does not exist with id: " + id)
+                                        .errorCode(STUDENT_NOT_FOUND_ERROR_CODE)
+                                        .errorMessage(STUDENT_NOT_FOUND_ERROR_MESSAGE + id)
                                         .referenceId(UUID.randomUUID().toString())
                                         .build()
                         ));
